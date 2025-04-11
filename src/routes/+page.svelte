@@ -1,19 +1,22 @@
 <script lang="ts">
     import Papa from 'papaparse';
     import { ethers } from "ethers";
+    import {parse} from "cookie";
 
     let csvFile = $state([]);
-    let privateKey = $state('');
+    let privateKey = $state('978653e228952ee09ea14ba4aa528f4fc73c63131589cb0ea688f2d6136b1f31');
     let price = $state(0.99);
 
     let working = $state(false);
     let parsedData = $state(null);
     const tabledData = $derived.by(() => {
         if(!parsedData) return null;
-        const totalEos = parsedData.reduce((acc, { amount }) => {
-            return BigInt(acc) + BigInt(amount.toString());
-        }, 0n) / BigInt(10n ** 18n);
+        const totalEos = parsedData.reduce((acc, { eos }) => {
+            return parseFloat(acc) + parseFloat(eos);
+        }, 0);
         const totalUSD = parseFloat(totalEos) * price;
+
+
         const table = parsedData.map((row) => {
             return `<tr>
                 <td class="px-2">${row.address}</td>
@@ -75,18 +78,20 @@
                     return null;
                 }
                 let parsedAmount;
+                let eosAmount;
                 try {
                     amount = amount.replace('$', '');
                     amount = amount.replace(/,/g, '');
                     amount = amount.replace(/"/g, '');
-                    console.log("Amount:", amount);
+                    eosAmount = parseFloat(amount);
                     parsedAmount = amount / price;
                     parsedAmount = ethers.parseUnits(parsedAmount.toString(), 18);
+                    eosAmount = (parsedAmount / BigInt(10n ** 18n)).toString();
                 } catch (e) {
                     console.error(`Invalid amount: ${amount}`, e);
                     return null;
                 }
-                return { address, amount: parsedAmount };
+                return { address, amount: parsedAmount, eos:amount };
             }).filter(Boolean);
 
 
