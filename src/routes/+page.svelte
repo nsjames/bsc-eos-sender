@@ -4,7 +4,7 @@
     import {parse} from "cookie";
 
     let csvFile = $state([]);
-    let privateKey = $state('978653e228952ee09ea14ba4aa528f4fc73c63131589cb0ea688f2d6136b1f31');
+    let privateKey = $state('');
     let price = $state(0.99);
 
     let working = $state(false);
